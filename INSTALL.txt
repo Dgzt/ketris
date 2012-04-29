@@ -1,0 +1,29 @@
+===== REQUIREMENT =====
+
+- CMake >= 2.6.0
+- Qt >= 4.2
+- KDE >= 4.2
+- libkdegames
+
+===== MANUAL INSTALL =====
+
+- mkdir build && cd build
+- cmake ..
+- make
+
+(a typical cmake option that is often used is: -DCMAKE_INSTALL_PREFIX=<prefix>)
+
+As root:
+- make install
+
+===== RUN =====
+
+- ketris
+
+===== DOWNLOAD =====
+
+http://kde-apps.org
+
+===== ABOUT =====
+
+e-mail: zsurotibor[at]gmail[dot]com

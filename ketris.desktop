@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Ketris
+Exec=ketris %u
+Icon=ketris
+Type=Application
+Terminal=false
+Categories=Qt;KDE;Game;ArcadeGame
+Comment=Tetris-like game.

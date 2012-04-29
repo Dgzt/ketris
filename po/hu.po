@@ -1,0 +1,68 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Ketris 1.0.0\n"
+"Report-Msgid-Bugs-To: -"
+"group_id=50231&atid=459007\n"
+"POT-Creation-Date: 2012-01-25 20:53+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Zsuró Tibor <->\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: Hungarian\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: main.cpp:29
+msgid "Ketris"
+msgstr ""
+
+#: main.cpp:31
+msgid "Ketris is a Tetris-like game."
+msgstr "Ketris egy Tetris-szerű játék."
+
+#: main.cpp:33
+msgid "(c) 2012 Zsuró Tibor"
+msgstr ""
+
+#: main.cpp:36
+msgid "Zsuró Tibor"
+msgstr ""
+
+#: main.cpp:37
+msgid "Developer and project founder"
+msgstr "Fejlesztő, a projekt alapítója"
+
+#: mainwindow.cpp:65
+msgid "Scores:"
+msgstr "Pontok:"
+
+#: mainwindow.cpp:69
+msgid "Removed lines:"
+msgstr "Törölt sorok:"
+
+#: mainwindow.cpp:73
+msgid "Level:"
+msgstr "Szint:"
+
+#: mainwindow.cpp:80
+msgid "Next shape:"
+msgstr "Következő alakzat:"
+
+#: mainwindow.cpp:95
+msgid "Welcome to Ketris!"
+msgstr "Üdvözöllek a Ketris-ben!"
+
+#: rc.cpp:1 rc.cpp:1
+msgctxt "NAME OF TRANSLATORS"
+msgid "Your names"
+msgstr "Zsuró Tibor"
+
+#: rc.cpp:2 rc.cpp:2
+msgctxt "EMAIL OF TRANSLATORS"
+msgid "Your emails"
+msgstr "zsurotibor@gmail.com"
