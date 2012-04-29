@@ -27,7 +27,7 @@ int main(int argc, char* argv[]){
     KAboutData aboutData( "ketris",
 						  0,
 						  ki18n("Ketris"),
-						  "1.1.0",
+						  "1.1.1",
 						  ki18n("Ketris is a Tetris-like game."),
 						  KAboutData::License_GPL_V3,
 						  ki18n("(c) 2012 Zsuró Tibor")

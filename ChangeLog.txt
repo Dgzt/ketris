@@ -1,10 +1,13 @@
 Ketris changelog:
 -----------------
 
+Since 1.1.0:
+  - Fix: a shape painting bug.
+  - Add: danish translation.
 
 Since 1.0.0:
   - Add: fast move action to the "Move" menu and default key is space.
-  - Fix: set position of widgets when switch the statusbar's status.
+  - Fix: set position of widgets when switch the status of statusbar.
   - Fix: new game when playing a game.
   - Add: move actions to the "Move" menu.
   - Fix: save modified shortcuts.

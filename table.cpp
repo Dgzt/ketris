@@ -105,6 +105,7 @@ void Table::paintEvent( QPaintEvent* pe )
 		}
 	}
 	
+	painter.end();
 }
 
 void Table::setSquareSize( int size )
