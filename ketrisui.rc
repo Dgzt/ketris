@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gui name="ketris">
+ 
+	<MenuBar>
+		<Menu name="move">
+			<Action name="move_left" />
+			<Action name="move_right" />
+			<Action name="move_down" />
+			<Action name="fast_move_down" />
+			<Action name="rotate_left" />
+			<Action name="rotate_right" />
+		</Menu>
+	</MenuBar>
+	
+</gui>

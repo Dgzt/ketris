@@ -25,13 +25,30 @@ class QResizeEvent;
 class QLCDNumber;
 class QLabel;
 class KAction;
+class KToggleAction;
 
 class MainWindow : public KXmlGuiWindow
 {
     Q_OBJECT
   
-	KAction* closeGameAction;
+	//
+	bool windowResized;
+	bool statusBarVisible;
+	//
   
+	//Move actions
+	KAction* moveLeftAction;
+	KAction* moveRightAction;
+	KAction* moveDownAction;
+	KAction* fastMoveDownAction;
+	KAction* rotateLeftAction;
+	KAction* rotateRightAction;
+  
+	//The player close the current game action
+	KAction* closeGameAction;
+	//Pause action
+	KToggleAction* pauseAction;
+	
 	//Central table
     CentralTable* centralTable;
 	
@@ -52,7 +69,12 @@ class MainWindow : public KXmlGuiWindow
 	QLCDNumber* levelNumber;
 	
     void createActions();
+	
+	//Set the geometry the main window's widgets
+	void resizeWidgets();
 
+	void setEnabledMoveActions( bool );
+	
 	int getStringWidth( QString );
 	int getStringHeight();
 
@@ -60,6 +82,7 @@ private slots:
     void gameNewSlot();
 	void playerClosedGameSlot();
     void showHighscoresSlot();
+	void pauseSlot();
 	
 	void removedLineSlot();
 	void newScoreSlot( int );
@@ -71,7 +94,11 @@ public:
     ~MainWindow();
     
 protected:
-	void resizeEvent( QResizeEvent * );
+	void resizeEvent( QResizeEvent* );
+	
+	//
+	void paintEvent( QPaintEvent* );
+	//
 
 };
 

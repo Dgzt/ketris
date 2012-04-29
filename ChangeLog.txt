@@ -1,0 +1,14 @@
+Ketris changelog:
+-----------------
+
+
+Since 1.0.0:
+  - Add: fast move action to the "Move" menu and default key is space.
+  - Fix: set position of widgets when switch the statusbar's status.
+  - Fix: new game when playing a game.
+  - Add: move actions to the "Move" menu.
+  - Fix: save modified shortcuts.
+  - Add: "Pause" action to the "Game" menu.
+  - Add: italian translation.
+  - Fix: "INSTALL.txt".
+  - Add: "ChangeLog.txt".

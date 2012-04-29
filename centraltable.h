@@ -33,6 +33,7 @@ class CentralTable : public Table
 	
 	QTimer* shapeTimer;
 	QTime* shapeElapsedTime;
+	int shapeElapsedMsec;
 	
 	/* The score system:
 	 * -----------------
@@ -50,12 +51,17 @@ class CentralTable : public Table
 	QPoint shapePos;
 	
 	//If the game is running, this is true, else fals
-	bool gameIsRunning;
+	//bool gameIsRunning;
 	
 	//This variable set the timer msec when start the timer
 	int shapeTimerMsec;
 	//This variable set the timer msec when pressed key and set the part of shapeTimerMsec
 	int currentTimerMsec;
+	
+	//Start or resume the shape timer
+	void startShapeTimer();
+	//Stop or pause the shape timer
+	void stopShapeTimer();
 	
 	//If the position is correct, return true, else false
 	bool isCorrectTheNewPosition();
@@ -77,9 +83,18 @@ public:
 	
 	void startGame();
 	void closeGame();
+	void pauseGame( bool );
 	
-protected:
-	void keyPressEvent( QKeyEvent * );
+public slots:
+	void moveLeftSlot();
+	void moveRightSlot();
+	void moveDownSlot();
+	void fastMoveDownSlot();
+	void rotateLeftSlot();
+	void rotateRightSlot();
+	
+//protected:
+//	void keyPressEvent( QKeyEvent * );
 	
 signals:
 	void newNextShape( Shape* );

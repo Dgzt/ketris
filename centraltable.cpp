@@ -30,7 +30,7 @@ const int REMOVED_FULL_ROW_SCORE = 3;
 
 CentralTable::CentralTable( QWidget* parent ): Table( Table::CentralTable, parent )
 {
-	gameIsRunning = false;
+	//gameIsRunning = false;
 	score = 0;
 	level = 0;
 	nextLevelScore = 0;
@@ -41,12 +41,13 @@ CentralTable::CentralTable( QWidget* parent ): Table( Table::CentralTable, paren
 	
 	shapeElapsedTime = 0;
 	currentTimerMsec = 0;
+	shapeElapsedMsec = 0;
 	
 	shapePos = QPoint(CENTRAL_TABLE_COLUMN_COUNT/2,0);
 	
 	shapeTimerMsec = BEGIN_TIMER_MSEC;
 	
-	setFocusPolicy(Qt::StrongFocus);
+	//setFocusPolicy(Qt::StrongFocus);
 }
 
 CentralTable::~CentralTable()
@@ -62,6 +63,28 @@ CentralTable::~CentralTable()
 	
 	if( shapeElapsedTime )
 		delete shapeElapsedTime;
+}
+
+//Start or resume the shape timer
+void CentralTable::startShapeTimer()
+{
+	/*int newTimerTime = currentTimerMsec - shapeElapsedMsec;
+	if( newTimerTime < 0 ) newTimerTime  = shapeTimerMsec;
+	
+	currentTimerMsec = newTimerTime;*/
+	currentTimerMsec -= shapeElapsedMsec;
+	if( currentTimerMsec < 0 )
+		currentTimerMsec = 0;
+	
+	shapeElapsedTime->restart();
+	shapeTimer->start( currentTimerMsec );
+}
+
+//Stop or pause the shape timer
+void CentralTable::stopShapeTimer()
+{
+	shapeTimer->stop();
+	shapeElapsedMsec = shapeElapsedTime->elapsed();		
 }
 
 bool CentralTable::isCorrectTheNewPosition()
@@ -149,6 +172,8 @@ void CentralTable::removeFullRows()
 
 void CentralTable::shapeTimerTimeoutSlot()
 {
+	shapeElapsedMsec = 0;
+	
 	//Delete the shape from the table
 	delShape( shapePos, currentShape );
 	//Set the new position, decrease the vertical position
@@ -173,7 +198,7 @@ void CentralTable::shapeTimerTimeoutSlot()
 		//If the new shape position is incorrect, then game end
 		if( !isCorrectTheNewPosition() ){
 			emit gameEnd();
-			gameIsRunning = false;
+			//gameIsRunning = false;
 			return;
 		}
 	}
@@ -185,9 +210,11 @@ void CentralTable::shapeTimerTimeoutSlot()
 	update();
 	
 	//Set the timer 
+	//currentTimerMsec = shapeTimerMsec;
+	//shapeTimer->start( currentTimerMsec );
+	//shapeElapsedTime->restart();
 	currentTimerMsec = shapeTimerMsec;
-	shapeTimer->start( currentTimerMsec );
-	shapeElapsedTime->restart();
+	startShapeTimer();
 }
 
 void CentralTable::startGame()
@@ -207,7 +234,10 @@ void CentralTable::startGame()
 	
 	shapeElapsedTime = new QTime;
 	
+	shapeElapsedMsec = 0;
+	
 	shapeTimerMsec = BEGIN_TIMER_MSEC;
+	currentTimerMsec = shapeTimerMsec;
 	
 	score = 0;
 	emit newScore( score );
@@ -216,17 +246,20 @@ void CentralTable::startGame()
 	emit newLevel( level );
 	nextLevelScore = FIRST_NEXT_LEVEL_SCORE;
 	
-	currentTimerMsec = shapeTimerMsec;
+	/*currentTimerMsec = shapeTimerMsec;
 	shapeElapsedTime->start();
-	shapeTimer->start( currentTimerMsec );
+	shapeTimer->start( currentTimerMsec );*/
+	startShapeTimer();
 
-	gameIsRunning = true;
+	//gameIsRunning = true;
 	update();
 }
 
 void CentralTable::closeGame()
 {
-	gameIsRunning = false;
+	//gameIsRunning = false;
+	
+	shapeElapsedMsec = 0;
 	
 	score = 0;
 	emit newScore( score );
@@ -257,14 +290,120 @@ void CentralTable::closeGame()
 	update();
 }
 
-void CentralTable::keyPressEvent(QKeyEvent* ke)
+void CentralTable::moveLeftSlot()
+{
+	stopShapeTimer();
+	
+	delShape( shapePos, currentShape );
+	shapePos.rx()--;
+	if( !isCorrectTheNewPosition() ){
+		shapePos.rx()++;
+	}
+	addShape( shapePos, currentShape );
+	
+	startShapeTimer();
+	update();
+}
+
+void CentralTable::moveRightSlot()
+{
+	stopShapeTimer();
+	
+	delShape( shapePos, currentShape );
+	shapePos.rx()++;
+	if( !isCorrectTheNewPosition() ){
+		shapePos.rx()--;
+	}
+	addShape( shapePos, currentShape );
+	
+	startShapeTimer();
+	update();
+}
+
+void CentralTable::moveDownSlot()
+{
+	stopShapeTimer();
+	
+	delShape( shapePos, currentShape );
+	shapePos.ry()++;
+	if( !isCorrectTheNewPosition() ){
+		shapePos.ry()--;
+	}
+	addShape( shapePos, currentShape );
+	
+	startShapeTimer();
+	update();
+}
+
+void CentralTable::fastMoveDownSlot()
+{
+	stopShapeTimer();
+	
+	delShape( shapePos, currentShape );
+	while( isCorrectTheNewPosition() ){
+		shapePos.ry()++;
+	}
+	
+	//The position now incorrect, move back
+	shapePos.ry()--;
+	
+	addShape( shapePos, currentShape );
+	
+	currentTimerMsec = 0;
+	startShapeTimer();
+	update();
+}
+
+void CentralTable::rotateLeftSlot()
+{
+	stopShapeTimer();
+	
+	delShape( shapePos, currentShape );
+	currentShape->rotateLeft();
+	if( !isCorrectTheNewPosition() ){
+		currentShape->rotateRight();
+	}
+	addShape( shapePos, currentShape );
+	
+	startShapeTimer();
+	update();
+}
+
+void CentralTable::rotateRightSlot()
+{
+	stopShapeTimer();
+	
+	delShape( shapePos, currentShape );
+	currentShape->rotateRight();
+	if( !isCorrectTheNewPosition() ){
+		currentShape->rotateLeft();
+	}
+	addShape( shapePos, currentShape );
+	
+	startShapeTimer();
+	update();
+}
+
+void CentralTable::pauseGame( bool pauseNow )
+{
+	if( pauseNow ){
+		stopShapeTimer();
+	}else{
+		startShapeTimer();
+	}
+}
+
+/*void CentralTable::keyPressEvent(QKeyEvent* ke)
 {
 	//If the game is not running, not control the key press event
 	if( !gameIsRunning ) 
 		return;
 	
 	//Stop the timer, becouse do not step the shape, when controll the new position
-	shapeTimer->stop();
+	//shapeTimer->stop();
+	//shapeElapsedMsec = shapeElapsedTime->elapsed();
+	stopShapeTimer();
+	
 	
 	if( ke->key() == Qt::Key_Up ){
 		//Rotate right
@@ -318,13 +457,14 @@ void CentralTable::keyPressEvent(QKeyEvent* ke)
 	}
 	
 	//Continue the time, where was it paused
-	int newTimerTime = currentTimerMsec - shapeElapsedTime->elapsed();;
-	if( newTimerTime < 0 ) newTimerTime  = shapeTimerMsec;
+	//int newTimerTime = currentTimerMsec - shapeElapsedMsec;
+	//if( newTimerTime < 0 ) newTimerTime  = shapeTimerMsec;
 	
-	currentTimerMsec = newTimerTime;
+	//currentTimerMsec = newTimerTime;
 	
-	shapeElapsedTime->restart();
-	shapeTimer->start( currentTimerMsec );
+	//shapeElapsedTime->restart();
+	//shapeTimer->start( currentTimerMsec );
+	//startShapeTimer();
 	
 	update();
-}
+}*/

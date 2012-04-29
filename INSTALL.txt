@@ -8,10 +8,8 @@
 ===== MANUAL INSTALL =====
 
 - mkdir build && cd build
-- cmake ..
+- cmake ..                   (a typical cmake option that is often used is: -DCMAKE_INSTALL_PREFIX=<prefix>)
 - make
-
-(a typical cmake option that is often used is: -DCMAKE_INSTALL_PREFIX=<prefix>)
 
 As root:
 - make install
@@ -22,7 +20,7 @@ As root:
 
 ===== DOWNLOAD =====
 
-http://kde-apps.org
+http://kde-apps.org/content/show.php/Ketris?content=148533
 
 ===== ABOUT =====
 

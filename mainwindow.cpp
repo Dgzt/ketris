@@ -20,20 +20,19 @@
 #include <QtGui/QLCDNumber>
 #include <KDE/KApplication>
 #include <KDE/KAction>
+#include <KDE/KToggleAction>
 #include <KDE/KActionCollection>
 #include <KDE/KStandardGameAction>
 #include <KDE/KLocalizedString>
 #include <KDE/KMenuBar>
 #include <KDE/KStatusBar>
 #include <KDE/KScoreDialog>
+
+#include <KDE/KMessageBox>
+
 #include "mainwindow.h"
 #include "centraltable.h"
 #include "nextshapetable.h"
-
-//
-#include <iostream>
-using namespace std;
-//
 
 //Main window constants
 const int MAIN_WINDOW_MINIMUM_WIDTH = 400;
@@ -102,6 +101,12 @@ MainWindow::MainWindow(QWidget *parent):KXmlGuiWindow(parent)
     //setupGUI();
 	
 	setupGUI( QSize( MAIN_WINDOW_DEFAULT_WIDTH, MAIN_WINDOW_DEFAULT_HEIGHT ) );
+	
+	setFocusPolicy( Qt::StrongFocus );
+	
+	//
+	windowResized = false;
+	statusBarVisible = false;
 }
 
 MainWindow::~MainWindow()
@@ -120,92 +125,78 @@ MainWindow::~MainWindow()
 //Create the actions of main window
 void MainWindow::createActions()
 {    
-    //Game
-    KStandardGameAction::gameNew(this,SLOT(gameNewSlot()),actionCollection());
-	KStandardGameAction::highscores(this,SLOT(showHighscoresSlot()),actionCollection());
-	closeGameAction = KStandardGameAction::end(this,SLOT(playerClosedGameSlot()),actionCollection());
-	closeGameAction->setEnabled(false);
-    KStandardGameAction::quit(this,SLOT(close()),actionCollection());
+    //Game menu
+    KStandardGameAction::gameNew( this, SLOT(gameNewSlot() ), actionCollection() );
 	
-	//Settings
-	//KStandardAction::preferences(this,SLOT(settingsSlot()),actionCollection());
-}
-
-int MainWindow::getStringWidth( QString text )
-{
-	return QFontMetrics( font() ).width( text );
-}
-
-int MainWindow::getStringHeight(/* QString text */)
-{
-	return QFontMetrics( font() ).height();
-}
-
-//Starting new game
-void MainWindow::gameNewSlot()
-{
-    centralTable->startGame();
+	KStandardGameAction::highscores( this, SLOT( showHighscoresSlot() ), actionCollection() );
 	
-	closeGameAction->setEnabled(true);
-}
-
-//The player clicked to the "Game end" button
-void MainWindow::playerClosedGameSlot()
-{
-	centralTable->closeGame();
-	nextShapeTable->gameWasClosed();
-	
-	removedLinesNumber->display( 0 );
-	closeGameAction->setEnabled(false);
-}
-
-
-//Show the highscores
-void MainWindow::showHighscoresSlot()
-{
-	KScoreDialog ksdialog( KScoreDialog::Name, this );
-	ksdialog.exec();
-}
-
-//Grow the number with 1
-void MainWindow::removedLineSlot()
-{
-	removedLinesNumber->display( removedLinesNumber->intValue()+1 );
-}
-
-void MainWindow::newScoreSlot( int score )
-{
-	scoreNumber->display( score );
-}
-
-void MainWindow::newLevelSlot( int level )
-{
-	levelNumber->display( level );
-}
-
-void MainWindow::gameEndSlot()
-{	
-	KScoreDialog ksdialog( KScoreDialog::Name, this );
-	
-	ksdialog.addScore( scoreNumber->value() );
-	
-	ksdialog.exec();
-	
-	centralTable->closeGame();
-	nextShapeTable->gameWasClosed();
-	
-	removedLinesNumber->display( 0 );
-	
+	closeGameAction = KStandardGameAction::end( this, SLOT( playerClosedGameSlot() ), actionCollection() );
 	closeGameAction->setEnabled( false );
+	
+	pauseAction = KStandardGameAction::pause( this, SLOT( pauseSlot() ), actionCollection() );
+	pauseAction->setEnabled( false );
+	
+    KStandardGameAction::quit( this, SLOT( close() ), actionCollection() );
+	
+	//Move menu
+	moveLeftAction = new KAction( this );
+	moveLeftAction->setText( i18n( "Move Left" ) );
+	moveLeftAction->setShortcut( Qt::Key_Left );
+	moveLeftAction->setIcon( KIcon( ":/pics/move_left.png" ) );
+	moveLeftAction->setEnabled( false );
+	actionCollection()->addAction( "move_left", moveLeftAction );
+	
+	moveRightAction = new KAction( this );
+	moveRightAction->setText( i18n( "Move Right" ) );
+	moveRightAction->setShortcut( Qt::Key_Right );
+	moveRightAction->setIcon( KIcon( ":/pics/move_right.png" ) );
+	moveRightAction->setEnabled( false );
+	actionCollection()->addAction( "move_right", moveRightAction );
+	
+	moveDownAction = new KAction( this );
+	moveDownAction->setText( i18n( "Move Down" ) );
+	moveDownAction->setShortcut( Qt::Key_Down );
+	moveDownAction->setIcon( KIcon( ":/pics/move_down.png" ) );
+	moveDownAction->setEnabled( false );
+	actionCollection()->addAction( "move_down", moveDownAction );
+	
+	fastMoveDownAction = new KAction( this );
+	fastMoveDownAction->setText( i18n( "Fast Move Down" ) );
+	fastMoveDownAction->setShortcut( Qt::Key_Space );
+	fastMoveDownAction->setIcon( KIcon( ":/pics/fast_move_down.png" ) );
+	fastMoveDownAction->setEnabled( false );
+	actionCollection()->addAction( "fast_move_down", fastMoveDownAction );
+	
+	rotateLeftAction = new KAction( this );
+	rotateLeftAction->setText( i18n( "Rotate Left" ) );
+	rotateLeftAction->setShortcut( Qt::Key_X );
+	rotateLeftAction->setIcon( KIcon( ":/pics/rotate_left.png" ) );
+	rotateLeftAction->setEnabled( false );
+	actionCollection()->addAction( "rotate_left", rotateLeftAction );
+	
+	rotateRightAction = new KAction( this );
+	rotateRightAction->setText( i18n( "Rotate Right" ) );
+	rotateRightAction->setShortcut( Qt::Key_Up );
+	rotateRightAction->setIcon( KIcon( ":/pics/rotate_right.png" ) );
+	rotateRightAction->setEnabled( false );
+	actionCollection()->addAction( "rotate_right", rotateRightAction );
+	
+	connect( moveLeftAction,     SIGNAL( triggered() ), centralTable, SLOT( moveLeftSlot()     ) );
+	connect( moveRightAction,    SIGNAL( triggered() ), centralTable, SLOT( moveRightSlot()    ) );
+	connect( moveDownAction,     SIGNAL( triggered() ), centralTable, SLOT( moveDownSlot()     ) );
+	connect( fastMoveDownAction, SIGNAL( triggered() ), centralTable, SLOT( fastMoveDownSlot() ) );
+	connect( rotateLeftAction,   SIGNAL( triggered() ), centralTable, SLOT( rotateLeftSlot()   ) );
+	connect( rotateRightAction,  SIGNAL( triggered() ), centralTable, SLOT( rotateRightSlot()  ) );
 }
 
-void MainWindow::resizeEvent( QResizeEvent *re )
+void MainWindow::resizeWidgets()
 {
-    //QWidget::resizeEvent(re);
-    Q_UNUSED(re);
-	
 	int menuBarHeigth = menuBar()->height();
-	int statusBarHeight = statusBar()->height();
+	//int statusBarHeight = statusBar()->height();
+	int statusBarHeight = 0;
+	if( statusBarVisible )
+		statusBarHeight = statusBar()->height();
+		
 	
 	int squareFrameNumOnRow = CENTRAL_TABLE_ROW_COUNT+1;
 	int squareFrameNumOnColumn = CENTRAL_TABLE_COLUMN_COUNT+1;
@@ -331,8 +322,6 @@ void MainWindow::resizeEvent( QResizeEvent *re )
 	pos.setX( rightFreeSpaceCenter - getStringWidth( nextShapeLabel->text() )/2 );
 	pos.setY( menuBarHeigth );
 	
-	cout << "nextShapeLabel width: " << nextShapeLabel->size().width() << endl;
-	
 	size.setWidth( getStringWidth( nextShapeLabel->text() ) );
 	size.setHeight( getStringHeight() );
 	nextShapeLabel->setGeometry( QRect( pos, size ) );
@@ -349,5 +338,159 @@ void MainWindow::resizeEvent( QResizeEvent *re )
 	size.setHeight( NEXT_SHAPE_TABLE_SIZE );
 	
 	nextShapeTable->setGeometry( QRect( pos, size ) );
+}
 
+void MainWindow::setEnabledMoveActions( bool enabled )
+{
+	moveLeftAction->setEnabled( enabled );
+	moveRightAction->setEnabled( enabled );
+	moveDownAction->setEnabled( enabled );
+	fastMoveDownAction->setEnabled( enabled );
+	rotateLeftAction->setEnabled( enabled );
+	rotateRightAction->setEnabled( enabled );
+}
+
+int MainWindow::getStringWidth( QString text )
+{
+	return QFontMetrics( font() ).width( text );
+}
+
+int MainWindow::getStringHeight(/* QString text */)
+{
+	return QFontMetrics( font() ).height();
+}
+
+//Starting new game
+void MainWindow::gameNewSlot()
+{
+	//If enabled, the game is runing
+	if( closeGameAction->isEnabled() ){
+		
+		//Pause the game
+		pauseAction->trigger();
+		
+		//KMessageBox msgBox;
+		int ret = KMessageBox::questionYesNo( this,
+											  i18n( "Really want to start a new game?" ) );
+	
+		if( ret == KMessageBox::Yes ){
+			//Close the current game and start new game
+			pauseAction->trigger();
+			playerClosedGameSlot();
+		}else{
+			//Unpause the game, and return
+			pauseAction->trigger();
+			return;
+		}
+	}
+	
+	centralTable->startGame();
+	
+	setEnabledMoveActions( true );
+	
+	closeGameAction->setEnabled( true );
+	pauseAction->setEnabled( true );
+}
+
+//The player clicked to the "Game end" button
+void MainWindow::playerClosedGameSlot()
+{
+	centralTable->closeGame();
+	nextShapeTable->gameWasClosed();
+	
+	setEnabledMoveActions( false );
+	
+	if( pauseAction->isChecked() )
+		pauseAction->setChecked( false );
+	
+	removedLinesNumber->display( 0 );
+	closeGameAction->setEnabled( false );
+	pauseAction->setEnabled( false );
+}
+
+
+//Show the highscores
+void MainWindow::showHighscoresSlot()
+{
+	KScoreDialog ksdialog( KScoreDialog::Name, this );
+	ksdialog.exec();
+}
+
+//Pause the game
+void MainWindow::pauseSlot()
+{
+	centralTable->pauseGame( pauseAction->isChecked() );
+	
+	setEnabledMoveActions( !pauseAction->isChecked() );
+	
+	if( pauseAction->isChecked() )
+		statusBar()->showMessage( i18n( "The game is paused!" ) );
+	else
+		statusBar()->clearMessage();
+}
+
+//Grow the number with 1
+void MainWindow::removedLineSlot()
+{
+	removedLinesNumber->display( removedLinesNumber->intValue()+1 );
+}
+
+void MainWindow::newScoreSlot( int score )
+{
+	scoreNumber->display( score );
+}
+
+void MainWindow::newLevelSlot( int level )
+{
+	levelNumber->display( level );
+}
+
+void MainWindow::gameEndSlot()
+{	
+	KScoreDialog ksdialog( KScoreDialog::Name, this );
+	
+	ksdialog.addScore( scoreNumber->value() );
+	
+	ksdialog.exec();
+	
+	centralTable->closeGame();
+	nextShapeTable->gameWasClosed();
+	
+	removedLinesNumber->display( 0 );
+	
+	setEnabledMoveActions( false );
+	
+	closeGameAction->setEnabled( false );
+	pauseAction->setEnabled( false );
+}
+
+void MainWindow::resizeEvent( QResizeEvent* re )
+{
+    QWidget::resizeEvent(re);
+    //Q_UNUSED(re);
+	
+	//resizeWidgets();
+	windowResized = true;
+}
+
+////////////////////
+void MainWindow::paintEvent( QPaintEvent* pe )
+{
+    QWidget::paintEvent( pe );
+	
+	//If the window was resized, then resize the main window's widgets
+	if( windowResized ){
+		//Becouse no resize the widgets again at the next if block
+		statusBarVisible = statusBar()->isVisible();
+		
+		resizeWidgets();
+		windowResized = false;
+	}
+	
+	//If change the statusbar's status, then resize the widgets
+	if( statusBarVisible != statusBar()->isVisible() ){
+		statusBarVisible = statusBar()->isVisible();
+		
+		resizeWidgets();
+	}
 }
