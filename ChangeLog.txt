@@ -1,5 +1,7 @@
 Ketris changelog:
 -----------------
+Since 1.1.1:
+  - Add: KDE >=4.9.0 support
 
 Since 1.1.0:
   - Fix: a shape painting bug.

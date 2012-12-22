@@ -3,13 +3,28 @@ project(ketris)
 cmake_minimum_required(VERSION 2.6)
 
 find_package(KDE4 "4.2" REQUIRED)
-find_package(LibKDEGames REQUIRED)
+#find_package(LibKDEGames REQUIRED)
+
+find_package(KDEGames)
+if (KDEGames_FOUND)
+    add_definitions(-DNEW_LIBKDEGAMES)
+else (KDEGames_FOUND)
+    find_package(LibKDEGames REQUIRED)
+    add_definitions(-DOLD_LIBKDEGAMES)
+endif (KDEGames_FOUND)
+
 
 include (KDE4Defaults)
 
 include_directories(${KDE4_INCLUDES})
-include_directories(${CMAKE_SOURCE_DIR}/libkdegames/highscore)
+#include_directories(${CMAKE_SOURCE_DIR}/libkdegames/highscore)
 
+if( NEW_LIBKDEGAMES )
+	include_directories( ${KDEGAMES_INCLUDE_DIRS} )
+elseif( OLD_LIBKDEGAMES )
+	include_directories( ${CMAKE_SOURCE_DIR}/libkdegames/highscore )
+endif( NEW_LIBKDEGAMES )
+	
 add_subdirectory( pics ) 
 add_subdirectory( po )
 
